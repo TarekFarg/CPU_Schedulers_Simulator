@@ -16,6 +16,9 @@ public class Processe {
         this.PriorityNumber = PriorityNumber ;
         this.QuantumTime = QuantumTime ;
     }
+
+    Processe(){}
+
     public void setWaitingTime(int t)
     {
         WaitingTime = t ;
@@ -23,6 +26,30 @@ public class Processe {
     public void setTurnaroundTime(int t)
     {
         TurnaroundTime = t ;
+    }
+    public void setName(String name)
+    {
+        Name = name ;
+    }
+    public void setArrivalTime(int t)
+    {
+        ArrivalTime = t ;
+    }
+    public void setColor(int c)
+    {
+        Color = c ;
+    }
+    public void setBurstTime(int t)
+    {
+        BurstTime = t ;
+    }
+    public void setPriorityNumber(int p)
+    {
+        PriorityNumber = p ;
+    }
+    public void setQuantumTime(int t)
+    {
+        QuantumTime = t ;
     }
     public void setExecutionOrder(int t)
     {
