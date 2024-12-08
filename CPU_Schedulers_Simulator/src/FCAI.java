@@ -85,9 +85,29 @@ public class FCAI {
             curProcess.setBurstTime(curProcess.getBurstTime()-executeTime);
 
 
+            // check if the process is finished
+            if(curProcess.getBurstTime()==0)
+            {
+                curProcess = null ;
+                continue;
+            }
+
             // the remaining Quantum
             while (curQuantum>0)
             {
+
+                // add any process its arrival time >= curTime
+                while (index < NumberOfProcesses && processeList.get(index).getArrivalTime() >= curTime)
+                {
+                    // Calc FCAI factor for each process will be added
+                    int f = CalcFCAIfactor(processeList.get(index));
+                    processeList.get(index).setFCAIfactor(f);
+
+                    // add to queue
+                    queue.add(processeList.get(index));
+                    index++ ;
+                }
+
 
                 //the process is preempted
                 if(!queue.isEmpty() && queue.peek().getFCAIfactor() < curProcess.getFCAIfactor())
@@ -102,17 +122,6 @@ public class FCAI {
                     queue.add(curProcess) ;
                 }
 
-                // add any process its arrival time >= curTime
-                while (index < NumberOfProcesses && processeList.get(index).getArrivalTime() >= curTime)
-                {
-                    // Calc FCAI factor for each process will be added
-                    int f = CalcFCAIfactor(processeList.get(index));
-                    processeList.get(index).setFCAIfactor(f);
-
-                    // add to queue
-                    queue.add(processeList.get(index));
-                    index++ ;
-                }
 
                 curProcess.setBurstTime(curProcess.getBurstTime()-1);
                 curQuantum-- ;
