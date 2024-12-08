@@ -44,7 +44,7 @@ public class FCAI {
         // Priority Queue sorted by FCAI Factor
         PriorityQueue<Processe> queue = new PriorityQueue<>(Comparator.comparingInt(Processe::getFCAIfactor));
 
-        int curTime = 0 , index = 0 ;
+        int curTime = 0 , index = 0 , curQuantum = 0 ;
         Processe curProcess = null ;
         while(!queue.isEmpty() || index < NumberOfProcesses)
         {
@@ -63,27 +63,75 @@ public class FCAI {
             // no process to execute
             if(queue.isEmpty() && curProcess == null)
             {
-                curTime++;
+                // update the cur time to equal the arrival time of the next process
+                curTime = processeList.get(index).getArrivalTime();
                 continue;
             }
 
-            
+
+            // first 40% of the Quantum
             curProcess = queue.poll() ;
-            int executeTime = (int) ceil(0.4*curProcess.getQuantumTime()); // 40%
+            curQuantum = curProcess.getQuantumTime() ;
+            int executeTime = (int) ceil(0.4*curQuantum); // 40%
             executeTime = min(executeTime,curProcess.getBurstTime()) ; // check if the execute time > burst time
-            curTime += executeTime ;
+            curTime += executeTime ; // update cur time
+            curQuantum -= executeTime ; //update the quantum
             curProcess.setBurstTime(curProcess.getBurstTime()-executeTime);
 
 
-            if(curProcess.getBurstTime() > 0)
+            // the remaining Quantum
+            while (curQuantum>0)
             {
-                curProcess.setFCAIfactor(CalcFCAIfactor(curProcess)); // update FCAI factor
+
+                //the process is preempted
+                if(!queue.isEmpty() && queue.peek().getFCAIfactor() < curProcess.getFCAIfactor())
+                {
+                    // update the quantum -> quantum + unused quantum
+                    curProcess.setQuantumTime(curProcess.getQuantumTime()+curQuantum);
+
+                    //calc FCAI factor
+                    curProcess.setFCAIfactor(CalcFCAIfactor(curProcess));
+                    
+                    // add the process to the queue
+                    queue.add(curProcess) ;
+                }
+
+                // add any process its arrival time >= curTime
+                while (index < NumberOfProcesses && processeList.get(index).getArrivalTime() >= curTime)
+                {
+                    // Calc FCAI factor for each process
+                    int f = CalcFCAIfactor(processeList.get(index));
+                    processeList.get(index).setFCAIfactor(f);
+
+                    // add to queue
+                    queue.add(processeList.get(index));
+                    index++ ;
+                }
+
+                curProcess.setBurstTime(curProcess.getBurstTime()-1);
+                curQuantum-- ;
+                curTime++;
+
+                // process is finished
+                if(curProcess.getBurstTime()==0)
+                {
+                    curProcess = null ;
+                    break;
+                }
+
+            }
+
+            //process completes its quantum and still has remaining work
+            if(curQuantum==0 && curProcess != null)
+            {
+                // update Quantum -> quantum + 2
+                curProcess.setQuantumTime(curProcess.getQuantumTime()+2);
+                //calc FCAI factor
+                curProcess.setFCAIfactor(CalcFCAIfactor(curProcess));
+                // add the process to the queue
                 queue.add(curProcess) ;
             }
-            else
-                curProcess = null ;
 
-            curTime++;
         }
     }
 }
