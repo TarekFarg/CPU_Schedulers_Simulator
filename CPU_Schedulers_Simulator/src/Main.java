@@ -27,6 +27,8 @@ public class Main {
             p.setBurstTime(Integer.parseInt(scn.nextLine()));
             System.out.print("Enter the " + i + "th Process Priority Number : ");
             p.setPriorityNumber(Integer.parseInt(scn.nextLine()));
+            System.out.print("Enter the " + i + "th Process Quantum Time if needed : ");
+            p.setQuantumTime(Integer.parseInt(scn.nextLine()));
             processeList.add(p) ;
         }
 
@@ -52,8 +54,7 @@ public class Main {
                 break;
             case 4:
                 System.out.println("FCAI");
-                FCAI f = new FCAI(processeList , NumberOfProcesses,RoundRobinTimeQuantum,contextSwitching) ;
-                f.start();
+                FCAI f = new FCAI(processeList , NumberOfProcesses) ;
                 break;
             default:
                 System.out.println("Invalid choice");

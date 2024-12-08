@@ -6,11 +6,12 @@ import static java.lang.Math.*;
 
 
 public class FCAI {
+
     private List<Processe> processeList ;
     private int NumberOfProcesses ;
-    private int RoundRobinTimeQuantum;
-    private int contextSwitching;
     private double v1 , v2 ;
+
+    // Calc v1 and v2
     private void CalcV()
     {
         int max_b = 0 , lastA = 0 ;
@@ -22,19 +23,24 @@ public class FCAI {
         v1 = (max_b*1.0)/10.0 ;
         v2 = (lastA*1.0)/10.0 ;
     }
+
+
+    // Calc FCAI factor
     private int CalcFCAIfactor(Processe p)
     {
         //FCAI Factor = (10−Priority) + (Arrival Time/V1) + (Remaining Burst Time/V2)
         return  (int) ((10 - p.getPriorityNumber()) + ceil((double)p.getArrivalTime()/v1) + ceil((double)p.getBurstTime()/v2));
     }
-    FCAI(List<Processe> list , int n , int r , int c)
+
+    // constructor
+    FCAI(List<Processe> list , int n)
     {
         this.processeList = list ;
         NumberOfProcesses = n ;
-        RoundRobinTimeQuantum = r ;
-        contextSwitching = c ;
         CalcV();
+        start();
     }
+
 
     void start()
     {
@@ -91,7 +97,7 @@ public class FCAI {
 
                     //calc FCAI factor
                     curProcess.setFCAIfactor(CalcFCAIfactor(curProcess));
-                    
+
                     // add the process to the queue
                     queue.add(curProcess) ;
                 }
@@ -99,7 +105,7 @@ public class FCAI {
                 // add any process its arrival time >= curTime
                 while (index < NumberOfProcesses && processeList.get(index).getArrivalTime() >= curTime)
                 {
-                    // Calc FCAI factor for each process
+                    // Calc FCAI factor for each process will be added
                     int f = CalcFCAIfactor(processeList.get(index));
                     processeList.get(index).setFCAIfactor(f);
 
