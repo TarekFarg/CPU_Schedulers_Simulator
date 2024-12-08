@@ -1,13 +1,14 @@
 public class Processe {
-    String Name ;
-    int Color ;
-    int ArrivalTime ;
-    int BurstTime ;
-    int PriorityNumber ;
-    int WaitingTime ;
-    int ExecutionOrder;
-    int TurnaroundTime;
-    int QuantumTime ;
+    private String Name ;
+    private int Color ;
+    private int ArrivalTime ;
+    private int BurstTime ;
+    private int PriorityNumber ;
+    private int WaitingTime ;
+    private int ExecutionOrder;
+    private int TurnaroundTime;
+    private int QuantumTime ;
+    private int FCAIfactor;
     Processe(String Name , int Color , int ArrivalTime , int BurstTime , int PriorityNumber , int QuantumTime){
         this.Name = Name ;
         this.Color = Color;
@@ -55,6 +56,11 @@ public class Processe {
     {
         ExecutionOrder = t ;
     }
+    //for FCAI Schedule
+    public void setFCAIfactor(int f)
+    {
+        FCAIfactor = f ;
+    }
     public int getColor()
     {
         return Color;
@@ -90,5 +96,10 @@ public class Processe {
     public int getQuantumTime()
     {
         return QuantumTime;
+    }
+    //for FCAI Schedule
+    int getFCAIfactor()
+    {
+        return FCAIfactor;
     }
 }

@@ -52,7 +52,8 @@ public class Main {
                 break;
             case 4:
                 System.out.println("FCAI");
-                //
+                FCAI f = new FCAI(processeList , NumberOfProcesses,RoundRobinTimeQuantum,contextSwitching) ;
+                f.start();
                 break;
             default:
                 System.out.println("Invalid choice");
