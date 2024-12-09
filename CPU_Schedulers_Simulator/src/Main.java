@@ -42,7 +42,8 @@ public class Main {
         {
             case 1:
                 System.out.println("SJF");
-                //
+                SJF sjf = new SJF();
+                sjf.execute(processeList);
                 break;
             case 2:
                 System.out.println("SRTF");
