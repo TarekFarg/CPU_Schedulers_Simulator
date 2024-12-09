@@ -51,7 +51,8 @@ public class Main {
                 break;
             case 3:
                 System.out.println("Priority");
-                //
+                Priority pr = new Priority();
+                pr.execute(processeList);
                 break;
             case 4:
                 System.out.println("FCAI");
