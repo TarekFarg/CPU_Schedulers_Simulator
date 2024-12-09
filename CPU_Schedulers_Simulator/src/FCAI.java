@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.PriorityQueue;
@@ -19,6 +20,9 @@ public class FCAI {
         {
             max_b = max(max_b, processeList.get(i).getBurstTime()) ;
             lastA = max(lastA,processeList.get(i).getArrivalTime()) ;
+
+            // set initial burst time
+            processeList.get(i).setInitialBurst(processeList.get(i).getBurstTime());
         }
         v1 = (max_b*1.0)/10.0 ;
         v2 = (lastA*1.0)/10.0 ;
@@ -36,6 +40,7 @@ public class FCAI {
     FCAI(List<Processe> list , int n)
     {
         this.processeList = list ;
+        finishedList = new ArrayList<>();
         NumberOfProcesses = n ;
         CalcV();
         start();
@@ -56,8 +61,8 @@ public class FCAI {
         Processe curProcess = null ;
         while(!queue.isEmpty() || index < NumberOfProcesses)
         {
-            // add any process its arrival time >= curTime
-            while(index < NumberOfProcesses && processeList.get(index).getArrivalTime() >= curTime)
+            // add any process its arrival time <= curTime
+            while(index < NumberOfProcesses && processeList.get(index).getArrivalTime() <= curTime)
             {
                 // Calc FCAI factor for each process
                 int f = CalcFCAIfactor(processeList.get(index));
@@ -108,8 +113,8 @@ public class FCAI {
             while (curQuantum>0)
             {
 
-                // add any process its arrival time >= curTime
-                while (index < NumberOfProcesses && processeList.get(index).getArrivalTime() >= curTime)
+                // add any process its arrival time <= curTime
+                while (index < NumberOfProcesses && processeList.get(index).getArrivalTime() <= curTime)
                 {
                     // Calc FCAI factor for each process will be added
                     int f = CalcFCAIfactor(processeList.get(index));
@@ -174,17 +179,10 @@ public class FCAI {
 
         // burst time in the finished process now is equal to zero
         // we want to set the initial burst time
-        for(Processe p1 : processeList)
+        for(Processe p : finishedList)
         {
-            for(Processe p2 : finishedList)
-            {
-                if(p1.getArrivalTime()==p2.getArrivalTime() && p1.getName()==p2.getName())
-                {
-                    // the same process
-                    p2.setBurstTime(p1.getBurstTime()); // set the burst time in the finished process
-                    break;
-                }
-            }
+            // make the burst time equal to the initial value
+            p.setBurstTime(p.getInitialBurst());
         }
 
 
@@ -204,14 +202,16 @@ public class FCAI {
         int totalWaitingTime = 0 ;
         int totalTurnaroundTime = 0 ;
 
-        System.out.println("Process\tArrival\tBurst\tWaiting\tTurnaround\tExecutionOrder");
+        System.out.printf("%-10s %-10s %-10s %-10s %-15s %-15s%n",
+                "Process", "Arrival", "Burst", "Waiting", "Turnaround", "ExecutionOrder");
+
         for (Processe p : finishedList) {
-            System.out.println(
-                    p.getName() + "\t" +
-                    p.getArrivalTime() + "\t" +
-                    p.getBurstTime() + "\t" +
-                    p.getWaitingTime() + "\t" +
-                    p.getTurnaroundTime() + "\t" +
+            System.out.printf("%-10s %-10d %-10d %-10d %-15d %-15d%n",
+                    p.getName(),
+                    p.getArrivalTime(),
+                    p.getBurstTime(),
+                    p.getWaitingTime(),
+                    p.getTurnaroundTime(),
                     p.getExecutionOrder()
             );
 
@@ -219,6 +219,7 @@ public class FCAI {
             totalTurnaroundTime += p.getTurnaroundTime();
         }
 
+        System.out.println();
         System.out.println("Average Waiting Time : " + totalWaitingTime/NumberOfProcesses);
         System.out.println("Average Waiting Time : " + totalTurnaroundTime/NumberOfProcesses);
 
@@ -226,9 +227,9 @@ public class FCAI {
         //  history update of quantum time for each process
         for(Processe p : finishedList)
         {
-            System.out.print(p.getName() + "history update of quantum time: ");
+            System.out.print(p.getName() + " history update of quantum time: ");
             for(int q : p.UpdateOfQuantum)
-                System.out.print(q + ' ');
+                System.out.print(q + " ");
             System.out.println();
         }
 
