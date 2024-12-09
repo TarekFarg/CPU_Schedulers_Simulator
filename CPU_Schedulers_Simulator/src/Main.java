@@ -49,8 +49,7 @@ public class Main {
             case 2:
                 System.out.println("SRTF");
                 SRTF srtf = new SRTF();
-                srtf.runSRTF(processeList, contextSwitching);
-                srtf.printResults(processeList);
+                srtf.execute(processeList, contextSwitching);
                 break;
             case 3:
                 System.out.println("Priority");

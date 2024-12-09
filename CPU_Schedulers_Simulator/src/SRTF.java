@@ -1,75 +1,84 @@
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class SRTF {
-    public void runSRTF(List<Processe> processes, int contextSwitching) {
-        int n = processes.size();
-        int[] remainingBurstTime = new int[n];
-        int[] waitingTime = new int[n];
-        int[] turnaroundTime = new int[n];
 
-        // Copy burst times
-        for (int i = 0; i < n; i++) {
-            remainingBurstTime[i] = processes.get(i).getBurstTime();
+    public void execute(List<Processe> processList, int contextSwitching) {
+        // Sort processes by Arrival Time initially
+        Collections.sort(processList, Comparator.comparingInt(Processe::getArrivalTime));
+
+        int currentTime = 0;
+        int totalProcesses = processList.size();
+        List<Processe> completedProcesses = new ArrayList<>();
+
+        // Keep a copy of original burst times
+        List<Integer> originalBurstTimes = new ArrayList<>();
+        for (Processe p : processList) {
+            originalBurstTimes.add(p.getBurstTime());
         }
 
-        int complete = 0, time = 0, shortest = -1, min = Integer.MAX_VALUE;
-        boolean check = false;
-
-        while (complete != n) {
-            for (int j = 0; j < n; j++) {
-                if (processes.get(j).getArrivalTime() <= time &&
-                    remainingBurstTime[j] < min && remainingBurstTime[j] > 0) {
-                    if (shortest != j && shortest != -1) {
-                        // Context switch occurs if the current process is preempted
-                        time += contextSwitching;
-                    }
-                    shortest = j;
-                    min = remainingBurstTime[j];
-                    check = true;
+        while (completedProcesses.size() < totalProcesses) {
+            // Get ready processes (those that have arrived and are not yet completed)
+            List<Processe> readyQueue = new ArrayList<>();
+            for (Processe p : processList) {
+                if (p.getArrivalTime() <= currentTime && p.getBurstTime() > 0 && !completedProcesses.contains(p)) {
+                    readyQueue.add(p);
                 }
             }
 
-            if (!check) {
-                time++;
-                continue;
+            if (!readyQueue.isEmpty()) {
+                // Select process with the shortest remaining burst time
+                Processe currentProcess = Collections.min(readyQueue, Comparator.comparingInt(Processe::getBurstTime));
+
+                // Simulate process execution for 1 time unit
+                currentProcess.setBurstTime(currentProcess.getBurstTime() - 1);
+                currentTime++;
+
+                // If the process finishes, calculate completion, turnaround, and waiting times
+                if (currentProcess.getBurstTime() == 0) {
+                    completedProcesses.add(currentProcess);
+
+                    // Completion Time = Current Time
+                    int completionTime = currentTime;
+
+                    // Turnaround Time = Completion Time - Arrival Time
+                    int turnaroundTime = completionTime - currentProcess.getArrivalTime();
+                    currentProcess.setTurnaroundTime(turnaroundTime);
+
+                    // Waiting Time = Turnaround Time - Original Burst Time
+                    int originalBurstTime = originalBurstTimes.get(processList.indexOf(currentProcess));
+                    int waitingTime = turnaroundTime - originalBurstTime;
+                    currentProcess.setWaitingTime(waitingTime);
+
+                    // Add context switching time after process completion
+                    currentTime += contextSwitching;
+                }
+            } else {
+                // No process is ready to execute; increment time
+                currentTime++;
             }
-
-            remainingBurstTime[shortest]--;
-            min = remainingBurstTime[shortest];
-            if (min == 0) min = Integer.MAX_VALUE;
-
-            if (remainingBurstTime[shortest] == 0) {
-                complete++;
-                check = false;
-
-                int finishTime = time + 1;
-                waitingTime[shortest] = finishTime - processes.get(shortest).getBurstTime() - processes.get(shortest).getArrivalTime();
-                if (waitingTime[shortest] < 0) waitingTime[shortest] = 0;
-
-                processes.get(shortest).setWaitingTime(waitingTime[shortest]);
-                processes.get(shortest).setTurnaroundTime(finishTime - processes.get(shortest).getArrivalTime());
-                processes.get(shortest).setFinishedTime(finishTime);
-            }
-            time++;
         }
 
-        // Assign calculated turnaround times to processes
-        for (int i = 0; i < n; i++) {
-            turnaroundTime[i] = processes.get(i).getTurnaroundTime();
-        }
+        printResults(processList);
     }
 
-    public void printResults(List<Processe> processes) {
-        System.out.println("Process\tArrival\tBurst\tWaiting\tTurnaround\tFinished");
-        for (Processe process : processes) {
+    private void printResults(List<Processe> processList) {
+        System.out.println("Process\tArrival\tBurst\tWaiting\tTurnaround");
+        for (Processe p : processList) {
             System.out.println(
-                process.getName() + "\t" +
-                process.getArrivalTime() + "\t" +
-                process.getBurstTime() + "\t" +
-                process.getWaitingTime() + "\t" +
-                process.getTurnaroundTime() + "\t" + "\t"+
-                process.getFinishedTime()
-            );
+                    p.getName() + "\t" +
+                            p.getArrivalTime() + "\t" +
+                            p.getBurstTime() + "\t" +
+                            p.getWaitingTime() + "\t" +
+                            p.getTurnaroundTime());
         }
+
+        // Calculate average waiting and turnaround times
+        double totalWaitingTime = processList.stream().mapToInt(Processe::getWaitingTime).sum();
+        double totalTurnaroundTime = processList.stream().mapToInt(Processe::getTurnaroundTime).sum();
+        System.out.println("Average Waiting Time: " + (totalWaitingTime / processList.size()));
+        System.out.println("Average Turnaround Time: " + (totalTurnaroundTime / processList.size()));
     }
 }
