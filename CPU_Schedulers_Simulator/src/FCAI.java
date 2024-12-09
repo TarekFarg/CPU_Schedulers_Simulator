@@ -24,8 +24,8 @@ public class FCAI {
             // set initial burst time
             processeList.get(i).setInitialBurst(processeList.get(i).getBurstTime());
         }
-        v1 = (max_b*1.0)/10.0 ;
-        v2 = (lastA*1.0)/10.0 ;
+        v1 = (lastA*1.0)/10.0 ;
+        v2 = (max_b*1.0)/10.0 ;
     }
 
 
@@ -83,7 +83,8 @@ public class FCAI {
 
 
             // first 40% of the Quantum
-            curProcess = queue.poll() ;
+            if(curProcess==null)
+                curProcess = queue.poll() ;
 
             if(curProcess.getExecutionOrder()==-1) // set Execution order & add the initial quantum
             {
@@ -138,6 +139,8 @@ public class FCAI {
 
                     // add the process to the queue
                     queue.add(curProcess) ;
+                    curProcess = null;
+                    break;
                 }
 
 
@@ -166,7 +169,10 @@ public class FCAI {
                 //calc FCAI factor
                 curProcess.setFCAIfactor(CalcFCAIfactor(curProcess));
                 // add the process to the queue
+                Processe next = null ;
+                if(!queue.isEmpty()) next = queue.poll();
                 queue.add(curProcess) ;
+                curProcess = next;
             }
 
         }
