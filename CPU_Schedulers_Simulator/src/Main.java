@@ -38,6 +38,7 @@ public class Main {
         System.out.println("Priority -> 3");
         System.out.println("FCAI -> 4");
         int c = scn.nextInt() ;
+        scn.nextLine();
         switch (c)
         {
             case 1:
@@ -47,7 +48,9 @@ public class Main {
                 break;
             case 2:
                 System.out.println("SRTF");
-                //
+                SRTF srtf = new SRTF();
+                srtf.runSRTF(processeList);
+                srtf.printResults(processeList);
                 break;
             case 3:
                 System.out.println("Priority");
