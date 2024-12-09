@@ -49,7 +49,7 @@ public class Main {
             case 2:
                 System.out.println("SRTF");
                 SRTF srtf = new SRTF();
-                srtf.runSRTF(processeList);
+                srtf.runSRTF(processeList, contextSwitching);
                 srtf.printResults(processeList);
                 break;
             case 3:

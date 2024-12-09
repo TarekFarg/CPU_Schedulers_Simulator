@@ -1,8 +1,7 @@
 import java.util.List;
 
 public class SRTF {
-
-    public void runSRTF(List<Processe> processes) {
+    public void runSRTF(List<Processe> processes, int contextSwitching) {
         int n = processes.size();
         int[] remainingBurstTime = new int[n];
         int[] waitingTime = new int[n];
@@ -13,13 +12,17 @@ public class SRTF {
             remainingBurstTime[i] = processes.get(i).getBurstTime();
         }
 
-        int complete = 0, time = 0, shortest = 0, min = Integer.MAX_VALUE;
+        int complete = 0, time = 0, shortest = -1, min = Integer.MAX_VALUE;
         boolean check = false;
 
         while (complete != n) {
             for (int j = 0; j < n; j++) {
                 if (processes.get(j).getArrivalTime() <= time &&
                     remainingBurstTime[j] < min && remainingBurstTime[j] > 0) {
+                    if (shortest != j && shortest != -1) {
+                        // Context switch occurs if the current process is preempted
+                        time += contextSwitching;
+                    }
                     shortest = j;
                     min = remainingBurstTime[j];
                     check = true;
@@ -42,7 +45,7 @@ public class SRTF {
                 int finishTime = time + 1;
                 waitingTime[shortest] = finishTime - processes.get(shortest).getBurstTime() - processes.get(shortest).getArrivalTime();
                 if (waitingTime[shortest] < 0) waitingTime[shortest] = 0;
-                
+
                 processes.get(shortest).setWaitingTime(waitingTime[shortest]);
                 processes.get(shortest).setTurnaroundTime(finishTime - processes.get(shortest).getArrivalTime());
                 processes.get(shortest).setFinishedTime(finishTime);
@@ -64,7 +67,7 @@ public class SRTF {
                 process.getArrivalTime() + "\t" +
                 process.getBurstTime() + "\t" +
                 process.getWaitingTime() + "\t" +
-                process.getTurnaroundTime() + "\t" + "\t" +
+                process.getTurnaroundTime() + "\t" + "\t"+
                 process.getFinishedTime()
             );
         }
