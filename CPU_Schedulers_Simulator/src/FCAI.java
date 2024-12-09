@@ -7,7 +7,7 @@ import static java.lang.Math.*;
 
 public class FCAI {
 
-    private List<Processe> processeList ;
+    private List<Processe> processeList , finishedList;
     private int NumberOfProcesses ;
     private double v1 , v2 ;
 
@@ -39,6 +39,8 @@ public class FCAI {
         NumberOfProcesses = n ;
         CalcV();
         start();
+        CalcResults();
+        printResults();
     }
 
 
@@ -50,7 +52,7 @@ public class FCAI {
         // Priority Queue sorted by FCAI Factor
         PriorityQueue<Processe> queue = new PriorityQueue<>(Comparator.comparingInt(Processe::getFCAIfactor));
 
-        int curTime = 0 , index = 0 , curQuantum = 0 ;
+        int curTime = 0 , index = 0 , curQuantum = 0 , numOfExecuted = 0 ;
         Processe curProcess = null ;
         while(!queue.isEmpty() || index < NumberOfProcesses)
         {
@@ -77,6 +79,14 @@ public class FCAI {
 
             // first 40% of the Quantum
             curProcess = queue.poll() ;
+
+            if(curProcess.getExecutionOrder()==-1) // set Execution order & add the initial quantum
+            {
+                numOfExecuted++;
+                curProcess.setExecutionOrder(numOfExecuted);
+                curProcess.UpdateOfQuantum.add(curProcess.getQuantumTime()); //
+            }
+
             curQuantum = curProcess.getQuantumTime() ;
             int executeTime = (int) ceil(0.4*curQuantum); // 40%
             executeTime = min(executeTime,curProcess.getBurstTime()) ; // check if the execute time > burst time
@@ -88,6 +98,8 @@ public class FCAI {
             // check if the process is finished
             if(curProcess.getBurstTime()==0)
             {
+                curProcess.setFinishedTime(curTime); // set the finished time
+                finishedList.add(curProcess) ; // add to the finished list
                 curProcess = null ;
                 continue;
             }
@@ -114,6 +126,7 @@ public class FCAI {
                 {
                     // update the quantum -> quantum + unused quantum
                     curProcess.setQuantumTime(curProcess.getQuantumTime()+curQuantum);
+                    curProcess.UpdateOfQuantum.add(curProcess.getQuantumTime()); // add the updated quantum
 
                     //calc FCAI factor
                     curProcess.setFCAIfactor(CalcFCAIfactor(curProcess));
@@ -130,6 +143,8 @@ public class FCAI {
                 // process is finished
                 if(curProcess.getBurstTime()==0)
                 {
+                    curProcess.setFinishedTime(curTime); // set the finished time
+                    finishedList.add(curProcess) ; // add to the finished list
                     curProcess = null ;
                     break;
                 }
@@ -141,6 +156,8 @@ public class FCAI {
             {
                 // update Quantum -> quantum + 2
                 curProcess.setQuantumTime(curProcess.getQuantumTime()+2);
+                curProcess.UpdateOfQuantum.add(curProcess.getQuantumTime()); // add the updated quantum
+
                 //calc FCAI factor
                 curProcess.setFCAIfactor(CalcFCAIfactor(curProcess));
                 // add the process to the queue
@@ -148,5 +165,72 @@ public class FCAI {
             }
 
         }
+    }
+
+    void CalcResults()
+    {
+        // sort finished list by arrival time
+        finishedList.sort(Comparator.comparingInt(Processe::getArrivalTime));
+
+        // burst time in the finished process now is equal to zero
+        // we want to set the initial burst time
+        for(Processe p1 : processeList)
+        {
+            for(Processe p2 : finishedList)
+            {
+                if(p1.getArrivalTime()==p2.getArrivalTime() && p1.getName()==p2.getName())
+                {
+                    // the same process
+                    p2.setBurstTime(p1.getBurstTime()); // set the burst time in the finished process
+                    break;
+                }
+            }
+        }
+
+
+        // calc waiting time & Turnaround Time
+        for(Processe p : finishedList)
+        {
+            int w = p.getFinishedTime()-p.getArrivalTime(); // Turnaround Time -> finished - Arrival
+            p.setTurnaroundTime(w); // set Turnaround Time
+
+            w -= p.getBurstTime() ; // waiting time -> finished - arrival - burst
+            p.setWaitingTime(w); // set waiting time
+        }
+    }
+
+    void printResults()
+    {
+        int totalWaitingTime = 0 ;
+        int totalTurnaroundTime = 0 ;
+
+        System.out.println("Process\tArrival\tBurst\tWaiting\tTurnaround\tExecutionOrder");
+        for (Processe p : finishedList) {
+            System.out.println(
+                    p.getName() + "\t" +
+                    p.getArrivalTime() + "\t" +
+                    p.getBurstTime() + "\t" +
+                    p.getWaitingTime() + "\t" +
+                    p.getTurnaroundTime() + "\t" +
+                    p.getExecutionOrder()
+            );
+
+            totalWaitingTime += p.getWaitingTime() ;
+            totalTurnaroundTime += p.getTurnaroundTime();
+        }
+
+        System.out.println("Average Waiting Time : " + totalWaitingTime/NumberOfProcesses);
+        System.out.println("Average Waiting Time : " + totalTurnaroundTime/NumberOfProcesses);
+
+
+        //  history update of quantum time for each process
+        for(Processe p : finishedList)
+        {
+            System.out.print(p.getName() + "history update of quantum time: ");
+            for(int q : p.UpdateOfQuantum)
+                System.out.print(q + ' ');
+            System.out.println();
+        }
+
     }
 }
