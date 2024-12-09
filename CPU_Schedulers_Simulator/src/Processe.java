@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.List;
+
 public class Processe {
     private String Name ;
     private int Color ;
@@ -9,6 +12,9 @@ public class Processe {
     private int TurnaroundTime;
     private int QuantumTime ;
     private int FCAIfactor;
+    private int finishedTime;
+    private int initialBurst;
+    List<Integer> UpdateOfQuantum ;
     Processe(String Name , int Color , int ArrivalTime , int BurstTime , int PriorityNumber , int QuantumTime){
         this.Name = Name ;
         this.Color = Color;
@@ -18,7 +24,10 @@ public class Processe {
         this.QuantumTime = QuantumTime ;
     }
 
-    Processe(){}
+    Processe(){
+        ExecutionOrder = -1 ;
+        UpdateOfQuantum = new ArrayList<>();
+    }
 
     public void setWaitingTime(int t)
     {
@@ -61,6 +70,16 @@ public class Processe {
     {
         FCAIfactor = f ;
     }
+    public void setFinishedTime(int t)
+    {
+        finishedTime = t ;
+    }
+    public void setInitialBurst(int t)
+    {
+        initialBurst = t ;
+    }
+
+
     public int getColor()
     {
         return Color;
@@ -101,5 +120,13 @@ public class Processe {
     int getFCAIfactor()
     {
         return FCAIfactor;
+    }
+    int getFinishedTime()
+    {
+        return finishedTime;
+    }
+    int getInitialBurst()
+    {
+        return initialBurst;
     }
 }
