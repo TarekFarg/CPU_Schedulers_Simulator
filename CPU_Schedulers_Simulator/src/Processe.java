@@ -13,6 +13,7 @@ public class Processe {
     private int QuantumTime ;
     private int FCAIfactor;
     private int finishedTime;
+    private int initialBurst;
     List<Integer> UpdateOfQuantum ;
     Processe(String Name , int Color , int ArrivalTime , int BurstTime , int PriorityNumber , int QuantumTime){
         this.Name = Name ;
@@ -73,6 +74,10 @@ public class Processe {
     {
         finishedTime = t ;
     }
+    public void setInitialBurst(int t)
+    {
+        initialBurst = t ;
+    }
 
 
     public int getColor()
@@ -119,5 +124,9 @@ public class Processe {
     int getFinishedTime()
     {
         return finishedTime;
+    }
+    int getInitialBurst()
+    {
+        return initialBurst;
     }
 }
