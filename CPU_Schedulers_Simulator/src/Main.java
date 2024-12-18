@@ -53,7 +53,7 @@ public class Main {
                 break;
             case 3:
                 System.out.println("Priority");
-                Priority pr = new Priority();
+                Priority pr = new Priority(contextSwitching);
                 pr.execute(processeList);
                 break;
             case 4:
