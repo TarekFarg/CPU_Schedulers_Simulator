@@ -1,3 +1,5 @@
+package cpuscheduling;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -29,15 +31,15 @@ public class FCAI {
     }
 
 
-    // Calc FCAI factor
+    // Calc cpuscheduling.FCAI factor
     private int CalcFCAIfactor(Processe p)
     {
-        //FCAI Factor = (10−Priority) + (Arrival Time/V1) + (Remaining Burst Time/V2)
+        //cpuscheduling.FCAI Factor = (10−cpuscheduling.Priority) + (Arrival Time/V1) + (Remaining Burst Time/V2)
         return  (int) ((10 - p.getPriorityNumber()) + ceil((double)p.getArrivalTime()/v1) + ceil((double)p.getBurstTime()/v2));
     }
 
     // constructor
-    FCAI(List<Processe> list , int n)
+    public FCAI(List<Processe> list, int n)
     {
         this.processeList = list ;
         finishedList = new ArrayList<>();
@@ -54,7 +56,7 @@ public class FCAI {
         // sort processes by arrival time
         processeList.sort(Comparator.comparingInt(Processe::getArrivalTime));
 
-        // Priority Queue sorted by FCAI Factor
+        // cpuscheduling.Priority Queue sorted by cpuscheduling.FCAI Factor
         PriorityQueue<Processe> queue = new PriorityQueue<>(Comparator.comparingInt(Processe::getFCAIfactor));
 
         int curTime = 0 , index = 0 , curQuantum = 0 , numOfExecuted = 0 ;
@@ -64,7 +66,7 @@ public class FCAI {
             // add any process its arrival time <= curTime
             while(index < NumberOfProcesses && processeList.get(index).getArrivalTime() <= curTime)
             {
-                // Calc FCAI factor for each process
+                // Calc cpuscheduling.FCAI factor for each process
                 int f = CalcFCAIfactor(processeList.get(index));
                 processeList.get(index).setFCAIfactor(f);
 
@@ -117,7 +119,7 @@ public class FCAI {
                 // add any process its arrival time <= curTime
                 while (index < NumberOfProcesses && processeList.get(index).getArrivalTime() <= curTime)
                 {
-                    // Calc FCAI factor for each process will be added
+                    // Calc cpuscheduling.FCAI factor for each process will be added
                     int f = CalcFCAIfactor(processeList.get(index));
                     processeList.get(index).setFCAIfactor(f);
 
@@ -134,7 +136,7 @@ public class FCAI {
                     curProcess.setQuantumTime(curProcess.getQuantumTime()+curQuantum);
                     curProcess.UpdateOfQuantum.add(curProcess.getQuantumTime()); // add the updated quantum
 
-                    //calc FCAI factor
+                    //calc cpuscheduling.FCAI factor
                     curProcess.setFCAIfactor(CalcFCAIfactor(curProcess));
 
                     // add the process to the queue
@@ -166,7 +168,7 @@ public class FCAI {
                 curProcess.setQuantumTime(curProcess.getQuantumTime()+2);
                 curProcess.UpdateOfQuantum.add(curProcess.getQuantumTime()); // add the updated quantum
 
-                //calc FCAI factor
+                //calc cpuscheduling.FCAI factor
                 curProcess.setFCAIfactor(CalcFCAIfactor(curProcess));
                 // add the process to the queue
                 Processe next = null ;
@@ -239,5 +241,9 @@ public class FCAI {
             System.out.println();
         }
 
+    }
+
+    public List<Processe> getFinishedList() {
+        return finishedList;
     }
 }

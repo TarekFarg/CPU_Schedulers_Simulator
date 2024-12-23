@@ -1,9 +1,10 @@
+package cpuscheduling;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Processe {
     private String Name ;
-    private int Color ;
     private int ArrivalTime ;
     private int BurstTime ;
     private int PriorityNumber ;
@@ -15,16 +16,15 @@ public class Processe {
     private int finishedTime;
     private int initialBurst;
     List<Integer> UpdateOfQuantum ;
-    Processe(String Name , int Color , int ArrivalTime , int BurstTime , int PriorityNumber , int QuantumTime){
+    Processe(String Name , int ArrivalTime , int BurstTime , int PriorityNumber , int QuantumTime){
         this.Name = Name ;
-        this.Color = Color;
         this.ArrivalTime = ArrivalTime ;
         this.BurstTime = BurstTime ;
         this.PriorityNumber = PriorityNumber ;
         this.QuantumTime = QuantumTime ;
     }
 
-    Processe(){
+    public Processe(){
         ExecutionOrder = -1 ;
         UpdateOfQuantum = new ArrayList<>();
     }
@@ -44,10 +44,6 @@ public class Processe {
     public void setArrivalTime(int t)
     {
         ArrivalTime = t ;
-    }
-    public void setColor(int c)
-    {
-        Color = c ;
     }
     public void setBurstTime(int t)
     {
@@ -80,10 +76,6 @@ public class Processe {
     }
 
 
-    public int getColor()
-    {
-        return Color;
-    }
     public String getName()
     {
         return Name;
