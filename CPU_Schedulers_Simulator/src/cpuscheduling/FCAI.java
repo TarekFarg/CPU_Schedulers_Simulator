@@ -212,10 +212,12 @@ public class FCAI {
         resultFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         resultFrame.setSize(800, 600);
 
+        // Define table columns
         String[] columnNames = {"Process", "Arrival", "Burst", "Waiting", "Turnaround", "ExecutionOrder"};
         DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
         JTable resultTable = new JTable(tableModel);
 
+        // Populate the table
         for (Processe p : finishedList) {
             tableModel.addRow(new Object[]{
                     p.getName(),
@@ -227,25 +229,48 @@ public class FCAI {
             });
         }
 
+        // Calculate averages
         double totalWaitingTime = finishedList.stream().mapToInt(Processe::getWaitingTime).sum();
         double totalTurnaroundTime = finishedList.stream().mapToInt(Processe::getTurnaroundTime).sum();
         double avgWaitingTime = totalWaitingTime / NumberOfProcesses;
         double avgTurnaroundTime = totalTurnaroundTime / NumberOfProcesses;
 
+        // Labels for averages
         JLabel avgWaitingTimeLabel = new JLabel("Average Waiting Time: " + avgWaitingTime);
         JLabel avgTurnaroundTimeLabel = new JLabel("Average Turnaround Time: " + avgTurnaroundTime);
 
+        // Panel for history of quantum time
+        JTextArea quantumHistoryTextArea = new JTextArea(10, 50);
+        quantumHistoryTextArea.setEditable(false);
+        quantumHistoryTextArea.setLineWrap(true);
+        quantumHistoryTextArea.setWrapStyleWord(true);
+        JScrollPane quantumScrollPane = new JScrollPane(quantumHistoryTextArea);
+
+        quantumHistoryTextArea.append("History Update of Quantum Time for Each Process:\n");
+        for (Processe p : finishedList) {
+            quantumHistoryTextArea.append(p.getName() + ": ");
+            for (int q : p.UpdateOfQuantum) {
+                quantumHistoryTextArea.append(q + " ");
+            }
+            quantumHistoryTextArea.append("\n");
+        }
+
+        // Panel setup
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         JScrollPane tableScrollPane = new JScrollPane(resultTable);
 
-        mainPanel.add(tableScrollPane);
-        mainPanel.add(avgWaitingTimeLabel);
-        mainPanel.add(avgTurnaroundTimeLabel);
+        mainPanel.add(tableScrollPane); // Add table
+        mainPanel.add(avgWaitingTimeLabel); // Add average waiting time
+        mainPanel.add(avgTurnaroundTimeLabel); // Add average turnaround time
+        mainPanel.add(new JLabel("Quantum History:")); // Add label for quantum history
+        mainPanel.add(quantumScrollPane); // Add quantum history
 
+        // Add main panel to frame
         resultFrame.add(mainPanel);
         resultFrame.setVisible(true);
     }
+
 
     public List<Processe> getFinishedList() {
         return finishedList;
