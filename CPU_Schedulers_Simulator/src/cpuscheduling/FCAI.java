@@ -1,5 +1,7 @@
 package cpuscheduling;
 
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -47,7 +49,7 @@ public class FCAI {
         CalcV();
         start();
         CalcResults();
-        printResults();
+        showResultsInGUI();
     }
 
 
@@ -205,42 +207,44 @@ public class FCAI {
         }
     }
 
-    void printResults()
-    {
-        int totalWaitingTime = 0 ;
-        int totalTurnaroundTime = 0 ;
+    private void showResultsInGUI() {
+        JFrame resultFrame = new JFrame("FCAI Scheduling Results");
+        resultFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        resultFrame.setSize(800, 600);
 
-        System.out.printf("%-10s %-10s %-10s %-10s %-15s %-15s%n",
-                "Process", "Arrival", "Burst", "Waiting", "Turnaround", "ExecutionOrder");
+        String[] columnNames = {"Process", "Arrival", "Burst", "Waiting", "Turnaround", "ExecutionOrder"};
+        DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
+        JTable resultTable = new JTable(tableModel);
 
         for (Processe p : finishedList) {
-            System.out.printf("%-10s %-10d %-10d %-10d %-15d %-15d%n",
+            tableModel.addRow(new Object[]{
                     p.getName(),
                     p.getArrivalTime(),
                     p.getBurstTime(),
                     p.getWaitingTime(),
                     p.getTurnaroundTime(),
                     p.getExecutionOrder()
-            );
-
-            totalWaitingTime += p.getWaitingTime() ;
-            totalTurnaroundTime += p.getTurnaroundTime();
+            });
         }
 
-        System.out.println();
-        System.out.println("Average Waiting Time : " + totalWaitingTime/NumberOfProcesses);
-        System.out.println("Average Waiting Time : " + totalTurnaroundTime/NumberOfProcesses);
+        double totalWaitingTime = finishedList.stream().mapToInt(Processe::getWaitingTime).sum();
+        double totalTurnaroundTime = finishedList.stream().mapToInt(Processe::getTurnaroundTime).sum();
+        double avgWaitingTime = totalWaitingTime / NumberOfProcesses;
+        double avgTurnaroundTime = totalTurnaroundTime / NumberOfProcesses;
 
+        JLabel avgWaitingTimeLabel = new JLabel("Average Waiting Time: " + avgWaitingTime);
+        JLabel avgTurnaroundTimeLabel = new JLabel("Average Turnaround Time: " + avgTurnaroundTime);
 
-        //  history update of quantum time for each process
-        for(Processe p : finishedList)
-        {
-            System.out.print(p.getName() + " history update of quantum time: ");
-            for(int q : p.UpdateOfQuantum)
-                System.out.print(q + " ");
-            System.out.println();
-        }
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        JScrollPane tableScrollPane = new JScrollPane(resultTable);
 
+        mainPanel.add(tableScrollPane);
+        mainPanel.add(avgWaitingTimeLabel);
+        mainPanel.add(avgTurnaroundTimeLabel);
+
+        resultFrame.add(mainPanel);
+        resultFrame.setVisible(true);
     }
 
     public List<Processe> getFinishedList() {
